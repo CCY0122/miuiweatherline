@@ -3,6 +3,8 @@ package com.example.ccy.miuiweatherline;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -11,15 +13,18 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.Pair;
+import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Scroller;
@@ -59,10 +64,14 @@ public class MiuiWeatherView extends View {
     private Paint circlePaint; //圆点画笔
 
     private List<WeatherBean> data = new ArrayList<>(); //元数据
-    private List<Pair<Integer, Integer>> weatherDatas = new ArrayList<>();  //对元数据中天气分组后的集合
+    private List<Pair<Integer, String>> weatherDatas = new ArrayList<>();  //对元数据中天气分组后的集合
+    private List<Float> dashDatas = new ArrayList<>(); //不同天气之间虚线的x坐标集合
     private List<PointF> points = new ArrayList<>(); //折线拐点的集合
     private int maxTemperature;//元数据中的最高和最低温度
     private int minTemperature;
+
+    private VelocityTracker velocityTracker;
+    private Scroller scroller;
 
 
     public MiuiWeatherView(Context context) {
@@ -77,6 +86,7 @@ public class MiuiWeatherView extends View {
         super(context, attrs, defStyle);
 
         setLayerType(View.LAYER_TYPE_SOFTWARE, null); //关硬件加速
+        scroller = new Scroller(context);
 
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MiuiWeatherView);
         minPointHeight = (int) ta.getDimension(R.styleable.MiuiWeatherView_min_point_height, dp2pxF(context, 60));
@@ -163,6 +173,7 @@ public class MiuiWeatherView extends View {
         this.data = data;
         weatherDatas.clear();
         points.clear();
+        dashDatas.clear();
 
         calculatePontGap();
         initWeatherMap();
@@ -173,11 +184,11 @@ public class MiuiWeatherView extends View {
 
     /**
      * 根据元数据中连续相同的天气数做分组,
-     * pair中的first为连续相同天气的天数，second为对应天气
+     * pair中的first值为连续相同天气的天数，second值为对应天气
      */
     private void initWeatherMap() {
         weatherDatas.clear();
-        int lastWeather = -1;
+        String lastWeather = "";
         int count = 0;
         for (int i = 0; i < data.size(); i++){
             WeatherBean bean = data.get(i);
@@ -185,7 +196,7 @@ public class MiuiWeatherView extends View {
                 lastWeather = bean.weather;
             }
             if (bean.weather != lastWeather) {
-                Pair<Integer, Integer> pair = new Pair<>(count, lastWeather);
+                Pair<Integer, String> pair = new Pair<>(count, lastWeather);
                 weatherDatas.add(pair);
                 count = 1;
             } else {
@@ -194,7 +205,7 @@ public class MiuiWeatherView extends View {
             lastWeather = bean.weather;
 
             if(i == data.size()-1){
-                Pair<Integer,Integer> pair = new Pair<>(count,lastWeather);
+                Pair<Integer,String> pair = new Pair<>(count,lastWeather);
                 weatherDatas.add(pair);
             }
         }
@@ -202,7 +213,7 @@ public class MiuiWeatherView extends View {
         Log.d("ccy", "weatherMap.size = " + weatherDatas.size());
         for (int i = 0; i < weatherDatas.size(); i++) {
             int c = weatherDatas.get(i).first;
-            int w = weatherDatas.get(i).second;
+            String w = weatherDatas.get(i).second;
             Log.d("ccy","weatherMap i =" + i + ";count = " + c+";weather = " + w);
         }
     }
@@ -243,6 +254,8 @@ public class MiuiWeatherView extends View {
         drawTemperature(canvas);
 
         drawWeatherDash(canvas);
+
+        drawWeatherIcon(canvas);
 
     }
 
@@ -346,7 +359,7 @@ public class MiuiWeatherView extends View {
                     centerY - (metrics.ascent + metrics.descent),
                     textPaint);
         }
-
+        textPaint.setTextSize(textSize);
         canvas.restore();
     }
 
@@ -365,23 +378,27 @@ public class MiuiWeatherView extends View {
         PathEffect pathEffect = new DashPathEffect(f,0);
         linePaint.setPathEffect(pathEffect);
 
+        dashDatas.clear();
         int interval = -1 ;
         float startX,startY,endX,endY;
         endY = viewHeight - defaultPadding;
-        for (int i = 0; i < weatherDatas.size(); i++) {
-            interval += weatherDatas.get(i).first;
-            startX =endX = defaultPadding +  interval*lineInterval;
-            startY = points.get(interval).y + pointRadius + dp2pxF(getContext(),2);
-            canvas.drawLine(startX,startY,endX,endY,linePaint);
-        }
 
-        //最开始的坐标处可能是没有虚线的，我们要手动画上
+        //0坐标点有可能是没有虚线的，我们要手动画上
         if(weatherDatas.get(0).first > 1){   //分组中第一组的相同天数就大于1天时
             canvas.drawLine(defaultPadding,
                     points.get(0).y + pointRadius + dp2pxF(getContext(),2),
                     defaultPadding,
                     endY,
                     linePaint);
+            dashDatas.add((float) defaultPadding);
+        }
+
+        for (int i = 0; i < weatherDatas.size(); i++) {
+            interval += weatherDatas.get(i).first;
+            startX =endX = defaultPadding +  interval*lineInterval;
+            startY = points.get(interval).y + pointRadius + dp2pxF(getContext(),2);
+            dashDatas.add(startX);
+            canvas.drawLine(startX,startY,endX,endY,linePaint);
         }
 
         linePaint.setPathEffect(null);
@@ -389,7 +406,122 @@ public class MiuiWeatherView extends View {
         canvas.restore();
     }
 
+    /**
+     * 画天气图标和它下方文字
+     * 若相邻虚线都在屏幕内，图标的x位置即在两虚线的中间
+     * 若有一条虚线在屏幕外，图标的x位置即在屏幕边沿到另一条虚线的中间
+     * 若两条都在屏幕外，图标x位置即屏幕中间
+     * @param canvas
+     */
+    private void drawWeatherIcon(Canvas canvas){
+        canvas.save();
+        textPaint.setTextSize(0.8f * textSize); //字体缩小一丢丢
 
+        boolean leftUsedScreenLeft = false;
+        boolean rightUsedScreenRight = false;
+
+        float iconWidth = lineInterval / 3.0f;  //默认天气图标边长为折线间距的1/3
+        int scrollX = getScrollX();  //范围控制在0 ~ viewWidth-screenWidth
+        float left,right;
+        float iconX,iconY;
+        float textY;     //文字的x坐标跟图标是一样的，无需额外声明
+        iconY = viewHeight - (defaultPadding + minPointHeight / 2.0f);
+        textY = iconY + iconWidth/2.0f + dp2pxF(getContext(),10);
+        for (int i = 0; i < dashDatas.size()-1; i++) {
+            left = dashDatas.get(i);
+            right = dashDatas.get(i+1);
+
+            //以下校正的情况为：两条虚线都在屏幕内或只有一条在屏幕内
+
+            if(left < scrollX &&    //仅左虚线在屏幕外
+                    right < scrollX+screenWidth){
+                left = scrollX;
+                leftUsedScreenLeft = true;
+            }
+            if(right > scrollX+screenWidth &&  //仅右虚线在屏幕外
+                    left > scrollX){
+                right = scrollX+screenWidth;
+                rightUsedScreenRight = true;
+            }
+
+            if(right - left > iconWidth){    //经过上述校正之后左右距离还大于图标宽度
+                iconX = (right - left) / 2.0f;
+            }else{                          //经过上述校正之后左右距离小于图标宽度，则贴着在屏幕内的虚线
+                if (leftUsedScreenLeft){
+                    iconX = right- iconWidth / 2.0f;
+                }else{
+                    iconX = left + iconWidth / 2.0f;
+                }
+            }
+
+            //以下校正的情况为：两条虚线都在屏幕之外
+
+            if(right < scrollX ){  //两条都在屏幕左侧
+                iconX = right - iconWidth / 2.0f;
+            }
+            if(left > scrollX + screenWidth ){   //两条都在屏幕右侧
+                iconX = left + iconWidth / 2.0f;
+            }
+
+            //经过上述校正之后可以得到图标和文字的绘制区域
+            RectF iconRect = new RectF(iconX - iconWidth/2.0f,
+                    iconY - iconWidth/2.0f,
+                    iconX + iconWidth/2.0f,
+                    iconY + iconWidth/2.0f);
+
+            Bitmap icon = getWeatherIcon(weatherDatas.get(i).second);
+
+            canvas.drawBitmap(icon,null,iconRect,null);  //画图标
+            canvas.drawText(weatherDatas.get(i).second, //画图标下方文字
+                    iconX,
+                    textY,
+                    textPaint);
+
+            leftUsedScreenLeft = rightUsedScreenRight = false; //重置标志位
+        }
+
+        textPaint.setTextSize(textSize);
+        canvas.restore();
+    }
+
+    /**
+     * 根据天气类型获取天气图标
+     * @return
+     */
+    private Bitmap getWeatherIcon(String weather) {
+        Bitmap bmp;
+        switch (weather){
+            case WeatherBean.SUN:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.sun);
+                break;
+            case WeatherBean.CLOUDY:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.cloudy);
+                break;
+            case WeatherBean.RAIN:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.rain);
+                break;
+            case WeatherBean.SNOW:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.snow);
+                break;
+            case WeatherBean.SUN_CLOUD:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.sun_cloud);
+                break;
+            case WeatherBean.THUNDER:
+                default:
+                bmp = BitmapFactory.decodeResource(getResources(),R.drawable.thunder);
+                break;
+        }
+        return bmp;
+    }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        if(scroller.computeScrollOffset()){
+            scrollTo(scroller.getCurrX(),scroller.getCurrY());
+            postInvalidate();
+        }
+    }
 
     //工具类
     public static int dp2px(Context c, float dp) {
