@@ -420,7 +420,7 @@ public class MiuiWeatherView extends View {
         boolean leftUsedScreenLeft = false;
         boolean rightUsedScreenRight = false;
 
-        float iconWidth = lineInterval / 3.0f;  //默认天气图标边长为折线间距的1/3
+        float iconWidth = lineInterval / 3.0f;  //默认天气图标宽为折线间距的1/3
         int scrollX = getScrollX();  //范围控制在0 ~ viewWidth-screenWidth
         float left,right;
         float iconX,iconY;
@@ -430,6 +430,7 @@ public class MiuiWeatherView extends View {
         for (int i = 0; i < dashDatas.size()-1; i++) {
             left = dashDatas.get(i);
             right = dashDatas.get(i+1);
+            Log.d("cccc","i = " + i + ";origin left = " + left + ";right = " + right);
 
             //以下校正的情况为：两条虚线都在屏幕内或只有一条在屏幕内
 
@@ -445,7 +446,7 @@ public class MiuiWeatherView extends View {
             }
 
             if(right - left > iconWidth){    //经过上述校正之后左右距离还大于图标宽度
-                iconX = (right - left) / 2.0f;
+                iconX = left + (right - left) / 2.0f;
             }else{                          //经过上述校正之后左右距离小于图标宽度，则贴着在屏幕内的虚线
                 if (leftUsedScreenLeft){
                     iconX = right- iconWidth / 2.0f;
@@ -463,13 +464,16 @@ public class MiuiWeatherView extends View {
                 iconX = left + iconWidth / 2.0f;
             }
 
-            //经过上述校正之后可以得到图标和文字的绘制区域
-            RectF iconRect = new RectF(iconX - iconWidth/2.0f,
-                    iconY - iconWidth/2.0f,
-                    iconX + iconWidth/2.0f,
-                    iconY + iconWidth/2.0f);
+            Log.d("cccc","i = " + i + ";left = " + left + ";right = " + right);
 
             Bitmap icon = getWeatherIcon(weatherDatas.get(i).second);
+            float iconHeight = calculateIconHeight(icon,iconWidth);
+
+            //经过上述校正之后可以得到图标和文字的绘制区域
+            RectF iconRect = new RectF(iconX - iconWidth/2.0f,
+                    iconY - iconHeight/2.0f,
+                    iconX + iconWidth/2.0f,
+                    iconY + iconHeight/2.0f);
 
             canvas.drawBitmap(icon,null,iconRect,null);  //画图标
             canvas.drawText(weatherDatas.get(i).second, //画图标下方文字
@@ -482,6 +486,20 @@ public class MiuiWeatherView extends View {
 
         textPaint.setTextSize(textSize);
         canvas.restore();
+    }
+
+    /**
+     * 根据原图和缩放的图宽计算出图长
+     * （PS:若通过Option.inJustDecodeBounds然后改变Option.inSampleSize的方式
+     * 是并不能完全控制图片的最终大小的，它最终大小还会根据设备dpi和
+     * 跟图标在哪个drawable文件夹下有关。）
+     * @param icon
+     * @param iconWidth
+     * @return
+     */
+    private float calculateIconHeight(Bitmap icon, float iconWidth) {
+        float ratio = iconWidth / icon.getWidth() ;
+        return icon.getHeight() * ratio;
     }
 
     /**
