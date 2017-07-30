@@ -1,9 +1,5 @@
 package com.example.ccy.miuiweatherline;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * Created by ccy on 2017-07-28.
  */
@@ -18,25 +14,28 @@ public class WeatherBean {
     public static final int THUNDER = 6; //雷
 
 
-    public int weather;
-    public int temperature;
-    public Date date;
 
-    public WeatherBean(int weather, int temperature, Date date) {
+    public int weather;  //天气，取值为上面6种
+    public int temperature; //温度值
+    public String temperatureStr; //温度的描述值
+    public String time; //时间值
+
+    public WeatherBean(int weather, int temperature,String time) {
         this.weather = weather;
         this.temperature = temperature;
-        this.date = date;
+        this.time = time;
+//        this.temperatureStr = temperature + "\u0026\u0023\u0031\u0037\u0036\u003b";
+        this.temperatureStr = temperature + "°";
     }
 
-//    /**
-//     * 判断是否是整点时分
-//     * @param date
-//     * @return
-//     */
-//    public static boolean isAtHour(Date date){
-//        SimpleDateFormat f = new SimpleDateFormat("mmss");
-//        String time = f.format(date);
-//        return "0000".equals(f);
-//    }
+    public WeatherBean(int weather, int temperature, String temperatureStr, String time) {
+        this.weather = weather;
+        this.temperature = temperature;
+        this.temperatureStr = temperatureStr;
+        this.time = time;
+    }
+
+
+
 
 }

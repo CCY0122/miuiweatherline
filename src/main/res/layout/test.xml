@@ -5,7 +5,6 @@
     <com.example.ccy.miuiweatherline.MiuiWeatherView
         android:id="@+id/weather"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#44ff0000"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
