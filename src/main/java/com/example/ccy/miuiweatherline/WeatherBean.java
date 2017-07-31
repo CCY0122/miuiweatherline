@@ -34,6 +34,11 @@ public class WeatherBean {
         this.time = time;
     }
 
+    public static String[] getAllWeathers(){
+        String[] str = {SUN,RAIN,CLOUDY,SUN_CLOUD,SNOW,THUNDER};
+        return str;
+    }
+
 
 
 
