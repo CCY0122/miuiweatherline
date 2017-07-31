@@ -55,7 +55,6 @@ public class MiuiWeatherView extends View {
     private float pointGap; //折线单位高度差
     private int defaultPadding; //折线坐标图四周留出来的偏移量
     private float iconWidth;  //天气图标的边长
-
     private int viewHeight;
     private int viewWidth;
     private int screenWidth;

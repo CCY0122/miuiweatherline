@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 //        data.add(b4);
 //        data.add(b5);
 //        data.add(b6);
-        
+
 
 
         weatherView.setData(data);
