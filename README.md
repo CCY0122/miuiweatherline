@@ -21,7 +21,7 @@ xml：<br/>
   List<WeatherBean> data = new ArrayList<>();
   //add your WeatherBean to data
   WeatherBean b1 = new WeatherBean(WeatherBean.SUN,20,"05:00");
-  WeatherBean b2 = new WeatherBean(weathers[1],22,"日出","05:30");
+  WeatherBean b2 = new WeatherBean(WeatherBean.RAIN,22,"日出","05:30");
   data.add(b1);
   data.add(b2);
   weatherView.setData(data);
