@@ -1,5 +1,7 @@
 # miuiweatherline
 仿小米MIUI8天气24小时预报折线图控件
+<br/>源码解析博客地址<br/>
+[http://blog.csdn.net/ccy0122/article/details/76464825](http://blog.csdn.net/ccy0122/article/details/76464825)<br/>
 <br/>效果预览<br/>
 ![image1](https://github.com/CCY0122/miuiweatherline/blob/master/someImages/complete1.png)
 ![image2](https://github.com/CCY0122/miuiweatherline/blob/master/someImages/weatherGif%20_1.gif)
