@@ -283,7 +283,7 @@ public class MiuiWeatherView extends View {
 
         canvas.drawLine(defaultPadding,
                 viewHeight - defaultPadding,
-                getMeasuredWidth() - defaultPadding,
+                viewWidth - defaultPadding,
                 viewHeight - defaultPadding,
                 linePaint);
 
@@ -523,7 +523,7 @@ public class MiuiWeatherView extends View {
         int outWdith, outHeight;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(getResources(), resId);
+        BitmapFactory.decodeResource(getResources(), resId, options);
         outWdith = options.outWidth;
         outHeight = options.outHeight;
         options.inSampleSize = 1;
@@ -533,7 +533,7 @@ public class MiuiWeatherView extends View {
             options.inSampleSize = Math.max(ratioW, ratioH);
         }
         options.inJustDecodeBounds = false;
-        bmp = BitmapFactory.decodeResource(getResources(), resId);
+        bmp = BitmapFactory.decodeResource(getResources(), resId, options);
         return bmp;
     }
 

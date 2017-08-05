@@ -39,20 +39,18 @@ public class MainActivity extends AppCompatActivity {
         data.get(4).temperatureStr = "日落";
         data.get(4).time = "陈朝勇";
 
-//        WeatherBean b1 = new WeatherBean(weathers[0],20,"05:00");
-//        WeatherBean b2 = new WeatherBean(weathers[1],22,"日出","05:30");
-//        WeatherBean b3 = new WeatherBean(weathers[2],21,"06:00");
-//        WeatherBean b4 = new WeatherBean(weathers[2],22,"07:00");
-//        WeatherBean b5 = new WeatherBean(weathers[3],23,"08:00");
-//        WeatherBean b6 = new WeatherBean(weathers[3],20,"09:00");
-//        data.add(b1);
-//        data.add(b2);
-//        data.add(b3);
-//        data.add(b4);
-//        data.add(b5);
-//        data.add(b6);
-
-
+        WeatherBean b1 = new WeatherBean(weathers[0],20,"05:00");
+        WeatherBean b2 = new WeatherBean(weathers[1],22,"日出","05:30");
+        WeatherBean b3 = new WeatherBean(weathers[2],21,"06:00");
+        WeatherBean b4 = new WeatherBean(weathers[2],22,"07:00");
+        WeatherBean b5 = new WeatherBean(weathers[2],23,"08:00");
+        WeatherBean b6 = new WeatherBean(weathers[3],20,"09:00");
+        data.add(b1);
+        data.add(b2);
+        data.add(b3);
+        data.add(b4);
+        data.add(b5);
+        data.add(b6);
 
         weatherView.setData(data);
     }
