@@ -87,7 +87,6 @@ public class MiuiWeatherView extends View {
 
     public MiuiWeatherView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
         scroller = new Scroller(context);
         viewConfiguration = ViewConfiguration.get(context);
 
@@ -104,6 +103,7 @@ public class MiuiWeatherView extends View {
         initPaint(context);
 
         initIcons();
+
 
 
     }
@@ -181,6 +181,8 @@ public class MiuiWeatherView extends View {
         requestLayout();
         invalidate();
     }
+
+
 
     /**
      * 初始化天气图标集合
@@ -365,11 +367,11 @@ public class MiuiWeatherView extends View {
         for (int i = 0; i < points.size(); i++) {
             text = data.get(i).temperatureStr;
             centerX = points.get(i).x;
-            centerY = points.get(i).y - dp2pxF(getContext(), 15);
+            centerY = points.get(i).y - dp2pxF(getContext(), 13);
             Paint.FontMetrics metrics = textPaint.getFontMetrics();
             canvas.drawText(text,
                     centerX,
-                    centerY - (metrics.ascent + metrics.descent),
+                    centerY - (metrics.ascent + metrics.descent)/2,
                     textPaint);
         }
         textPaint.setTextSize(textSize);
@@ -449,6 +451,7 @@ public class MiuiWeatherView extends View {
         float textY;     //文字的x坐标跟图标是一样的，无需额外声明
         iconY = viewHeight - (defaultPadding + minPointHeight / 2.0f);
         textY = iconY + iconWidth / 2.0f + dp2pxF(getContext(), 10);
+        Paint.FontMetrics metrics = textPaint.getFontMetrics();
         for (int i = 0; i < dashDatas.size() - 1; i++) {
             left = dashDatas.get(i);
             right = dashDatas.get(i + 1);
@@ -496,9 +499,10 @@ public class MiuiWeatherView extends View {
                     iconY + iconWidth / 2.0f);
 
             canvas.drawBitmap(icon, null, iconRect, null);  //画图标
+
             canvas.drawText(weatherDatas.get(i).second, //画图标下方文字
                     iconX,
-                    textY,
+                    textY - (metrics.ascent+metrics.descent)/2,
                     textPaint);
 
             leftUsedScreenLeft = rightUsedScreenRight = false; //重置标志位
@@ -511,7 +515,6 @@ public class MiuiWeatherView extends View {
 
     /**
      * 根据天气获取对应的图标，并且缩放到指定大小
-     *
      * @param weather
      * @param requestW
      * @param requestH
@@ -536,6 +539,7 @@ public class MiuiWeatherView extends View {
         bmp = BitmapFactory.decodeResource(getResources(), resId, options);
         return bmp;
     }
+
 
     private int getIconResId(String weather) {
         int resId;
