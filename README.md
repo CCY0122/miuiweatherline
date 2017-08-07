@@ -12,9 +12,9 @@ xml：<br/>
         android:id="@+id/weather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:line_interval="60dp"
-        app:min_point_height="60dp"
-        app:background_color="#ffffff"/>
+        app:line_interval="60dp" （可选，相邻点距离）
+        app:min_point_height="60dp"  （可选，折线最低高度）
+        app:background_color="#ffffff"/>  （可选，背景色）
 ```
 <br/>code:<br/>
 使用`com.example.ccy.miuiweatherline.WeatherBean`作为元数据:<br/>
@@ -24,7 +24,8 @@ xml：<br/>
   //add your WeatherBean to data
   WeatherBean b1 = new WeatherBean(WeatherBean.SUN,20,"05:00");
   WeatherBean b2 = new WeatherBean(WeatherBean.RAIN,22,"日出","05:30");
-  data.add(b1);
+  //b3、b4...bn
+  data.add(b1);
   data.add(b2);
   weatherView.setData(data);
   ```
