@@ -126,8 +126,8 @@ public class MiuiWeatherView extends View {
      * 计算折线单位高度差
      */
     private void calculatePontGap() {
-        int lastMaxTem = -100000;
-        int lastMinTem = 100000;
+        int lastMaxTem = -Integer.MAX_VALUE;
+        int lastMinTem = Integer.MAX_VALUE;
         for (WeatherBean bean : data) {
             if (bean.temperature > lastMaxTem) {
                 maxTemperature = bean.temperature;
@@ -164,15 +164,26 @@ public class MiuiWeatherView extends View {
     }
 
     /**
-     * 唯一公开方法，用于设置元数据
+     * 公开方法，用于设置元数据
      *
      * @param data
      */
     public void setData(List<WeatherBean> data) {
-        if (data == null || data.isEmpty()) {
+        if (data == null) {
             return;
         }
         this.data = data;
+        notifyDataSetChanged();
+    }
+
+    public List<WeatherBean> getData(){
+        return data;
+    }
+
+    public void notifyDataSetChanged(){
+        if(data == null){
+            return;
+        }
         weatherDatas.clear();
         points.clear();
         dashDatas.clear();
