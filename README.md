@@ -29,6 +29,8 @@ xml：<br/>
   data.add(b2);
   weatherView.setData(data);
   ```
+  
+  *(代码很少，建议直接copy，因为大家应该大概率会去修改/增加源码的天气icon、天气类型等）*
 
 
 
