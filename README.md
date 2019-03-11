@@ -2,12 +2,12 @@
 仿小米MIUI8天气24小时预报折线图控件
 <br/>源码解析博客地址<br/>
 [http://blog.csdn.net/ccy0122/article/details/76464825](http://blog.csdn.net/ccy0122/article/details/76464825)<br/>
-<br/>效果预览<br/>
+## 效果预览
 ![image1](https://github.com/CCY0122/miuiweatherline/blob/master/someImages/complete1.png)
 ![image2](https://github.com/CCY0122/miuiweatherline/blob/master/someImages/weatherGif%20_1.gif)
-<br/>使用方法：<br/>
+## 使用方法
 xml：<br/>
-```
+```xml
     <com.example.ccy.miuiweatherline.MiuiWeatherView
         android:id="@+id/weather"
         android:layout_width="match_parent"
@@ -18,7 +18,7 @@ xml：<br/>
 ```
 <br/>code:<br/>
 使用`com.example.ccy.miuiweatherline.WeatherBean`作为元数据:<br/>
- ```
+ ```java
  weatherView = (MiuiWeatherView) findViewById(R.id.weather);
   List<WeatherBean> data = new ArrayList<>();
   //add your WeatherBean to data
